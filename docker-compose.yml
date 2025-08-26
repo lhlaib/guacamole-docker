@@ -1,0 +1,94 @@
+# version: "3.8"
+
+# =========================================
+# Apache Guacamole VDI 環境 (Docker Compose)
+# 組成服務：
+# 1. MariaDB (guacdb)：儲存使用者、連線與授權資訊
+# 2. guacd：協定代理 (RDP / VNC / SSH)
+# 3. guacamole：Web 應用 (使用者透過瀏覽器登入)
+# =========================================
+
+services:
+
+  # ------------------------------
+  # 資料庫服務 (MariaDB)
+  # ------------------------------
+  guacdb:
+    image: mariadb:10.9                   # 使用 MariaDB 10.9 版本
+    container_name: guacamoledb
+    restart: unless-stopped               # 異常自動重啟
+    environment:
+      MYSQL_ROOT_PASSWORD: MariaDBRootPass   # root 密碼 (請自行修改)
+      MYSQL_DATABASE: guacamole_db           # Guacamole 專用資料庫名稱
+      MYSQL_USER: guacamole_user             # Guacamole 專用使用者
+      MYSQL_PASSWORD: MariaDBUserPass        # 該使用者密碼 (請自行修改)
+    volumes:
+      - db-data:/var/lib/mysql               # 資料庫持久化
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql:ro
+        # 初始化 Guacamole 資料表 (第一次啟動會匯入)
+
+  # ------------------------------
+  # 協定代理 (guacd)
+  # ------------------------------
+  guacd:
+    image: guacamole/guacd:latest          # guacd 代理服務 (RDP/VNC/SSH)
+    container_name: guacd
+    restart: unless-stopped
+    volumes:
+      - ./recordings:/var/lib/guacamole/recordings:rw
+        # 錄影檔案存放路徑 (read-write)
+
+  # ------------------------------
+  # Guacamole Web 應用
+  # ------------------------------
+  guacamole:
+    image: guacamole/guacamole:latest      # Guacamole Web 前端
+    container_name: guacamole
+    restart: unless-stopped
+    ports:
+      # - 8080:8080                       # 對外提供服務的Port : Guacamole Web Port 代表 http://<host>:8080
+      - 80:8080                           # 對外提供服務的Port : Guacamole Web Port 代表 http://<host>
+    environment:
+      WEBAPP_CONTEXT: "ROOT" 
+      # 與 guacd / DB 連線設定
+      GUACD_HOSTNAME: guacd
+      MYSQL_HOSTNAME: guacdb
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: guacamole_db
+      MYSQL_USER: guacamole_user
+      MYSQL_PASSWORD: MariaDBUserPass
+      MYSQL_ENABLED: "true"
+      
+      # --- Web 附加功能啟用 ---
+      # 啟用錄影功能
+      RECORDING_ENABLED: "true"
+      # 啟用 LDAP 認證 (需在 guacamole.properties 配置)            
+      LDAP_ENABLED: "true" 
+      # 啟用二階段驗證 (可取消註解)                
+      TOTP_ENABLED: "false"       
+      # 啟用 IP 封鎖功能(需在 guacamole.properties 配置)        
+      BAN_ENABLED: "true"     
+      # 啟用訪問限制 IP與可用時間控管 (可取消註解)        
+      RESTRICT_ENABLED: "true"     
+      # 啟用 JSON 認證 (支援單一入口)       
+      JSON_ENABLED: "false"        
+      
+                    
+
+    volumes:
+      - ./guacamole.properties:/etc/guacamole/guacamole.properties:ro
+        # Guacamole 主要設定檔
+      - ./extensions:/etc/guacamole/extensions:ro
+        # 放置擴充套件 (TOTP/Branding/SSO 等)
+      - ./recordings:/var/lib/guacamole/recordings:ro
+        # 錄影檔案 (read-only，避免被覆寫)
+
+    depends_on:                            # 啟動順序依賴
+      - guacd
+      - guacdb
+
+# =========================================
+# Volumes (持久化儲存)
+# =========================================
+volumes:
+  db-data:                                 # MariaDB 資料持久化

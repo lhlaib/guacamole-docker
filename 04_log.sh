@@ -1,0 +1,1 @@
+./01_manager.sh logs-save
