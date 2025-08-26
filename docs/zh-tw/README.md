@@ -56,40 +56,46 @@
 ---
 
 ## 快速安裝（一步一步）
+### Clone Repository
+```bash
+git clone https://github.com/yourusername/guacamole-docker.git
+cd guacamole-docker
+```
+
 > 所有指令都在專案根目錄執行
 
-1) 讓腳本可執行
+### 1. 讓腳本可執行
 ```bash
 chmod +rx *.sh
 ```
 
-2.  安裝 Docker / Compose
+### 2.  安裝 Docker / Compose
 
 ```bash
 ./00_install_docker.sh
 ```
 
-3.  一鍵初始化（建 DB、設錄影目錄權限、整套帶起來）
+### 3.  一鍵初始化（建 DB、設錄影目錄權限、整套帶起來）
 
 ```bash
 ./01_manager.sh init-all
 ```
 
 
-4.  重啟（改設定或更新時）
+### 4.  重啟（改設定或更新時）
 
 ```bash
 ./02_restart.sh
 ```
 
-5.  看服務狀態（都要是 Up）
+### 5.  看服務狀態（都要是 Up）
 
 ```bash
 ./03_check.sh
 ```
 
 
-6.  追 log（出問題先看這裡）
+### 6.  追 log（出問題先看這裡）
 
 ```bash
 ./04_log.sh
@@ -97,10 +103,10 @@ chmod +rx *.sh
 
 打完收工 → 開瀏覽器到 `http://<你的主機>`。
 
-預設登入帳號：`guacadmin` / 密碼：`guacadmin`
-**強烈建議**：馬上登入後→**改密碼**→
-立刻建立第二管理員（具備同等權限），確認能登入後→停用 guacadmin。
-理由：預設帳號是攻擊者掃描的第一目標。
+> ⚠️ 預設登入帳號：`guacadmin` / 密碼：`guacadmin`
+> **強烈建議**：馬上登入後→**改密碼**→
+> 立刻建立第二管理員（具備同等權限），確認能登入後→停用 guacadmin。
+> 理由：預設帳號是攻擊者掃描的第一目標。
 
 * * *
 
