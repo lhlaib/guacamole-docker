@@ -13,7 +13,7 @@
   A fast Docker setup for <b>Apache Guacamole</b> on <b>Ubuntu 24.04</b> — RDP / VNC / SSH, session recording, LDAP, IP banning, time/IP restrictions, and a ready-to-brand login page.
 </p>
 
-中文版說明請見： [README.zh-tw.md](../docs/zh-tw/README.md)
+中文版說明請見： [README.zh-tw.md](./docs/zh-tw/README.md)
 
 ---
 
