@@ -157,15 +157,23 @@ case "$cmd" in
     fi
     ;;
   init-db|initdb)
-    if [[ -f "$INIT_SQL" ]]; then
-      ok "initdb.sql 已存在：$INIT_SQL"
-    else
+    if [[ ! -f "$INIT_SQL" ]]; then
       bold "生成 initdb.sql ..."
       docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > "$INIT_SQL"
       ok "已產生：$INIT_SQL"
-      note "首次啟動時會由 compose 的 guacdb 自動匯入此 SQL。"
+    fi
+
+    # 檢查 guacamole_user 表是否存在
+    if ! dc exec -T guacdb mysql -u root -p"$MYSQL_ROOT_PASSWORD" \
+        -e "USE guacamole_db; SHOW TABLES LIKE 'guacamole_user';" | grep -q guacamole_user; then
+      bold "匯入 initdb.sql ..."
+      dc exec -T guacdb bash -lc 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" guacamole_db' < "$INIT_SQL"
+      ok "已匯入 Guacamole schema"
+    else
+      note "guacamole_user 表已存在，略過匯入"
     fi
     ;;
+
   init-recordings)
     ensure_dirs_and_perms
     ok "recordings 目錄權限已設定為 UID=${REC_UID} GID=${REC_GID} MODE=${REC_MODE}：$REC_DIR"
