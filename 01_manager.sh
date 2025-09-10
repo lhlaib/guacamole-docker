@@ -166,6 +166,8 @@ case "$cmd" in
       ok "已產生：$INIT_SQL"
     fi
 
+    "$0" up   # 確保 db 在跑
+
     # 檢查 guacamole_user 表是否存在
     if ! dc exec -T guacdb mysql -u guacamole_user -p"$MYSQL_ROOT_PASSWORD" \
         -e "USE guacamole_db; SHOW TABLES LIKE 'guacamole_user';" | grep -q guacamole_user; then
@@ -184,7 +186,7 @@ case "$cmd" in
   init-all)
     "$0" init-db
     "$0" init-recordings
-    "$0" up
+    "$0" restart
     ;;
   env)
     echo "PROJECT_NAME = $PROJECT_NAME"
