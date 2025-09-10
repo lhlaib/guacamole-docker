@@ -165,8 +165,7 @@ case "$cmd" in
       docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > "$INIT_SQL"
       ok "已產生：$INIT_SQL"
     fi
-
-    "$0" up   # 確保 db 在跑
+    
 
     # 檢查 guacamole_user 表是否存在
     if ! dc exec -T guacdb mysql -u guacamole_user -p"$MYSQL_ROOT_PASSWORD" \
@@ -186,7 +185,7 @@ case "$cmd" in
   init-all)
     "$0" init-db
     "$0" init-recordings
-    "$0" restart
+    "$0" up
     ;;
   env)
     echo "PROJECT_NAME = $PROJECT_NAME"
