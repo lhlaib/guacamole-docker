@@ -130,6 +130,7 @@ fi
 ok "已將 $USER 加入 docker 群組"
 
 # 你原本就指定要自動執行；注意：此指令會開新 shell，只對目前會話生效
+echo "➡️ 建議『登出並重新登入』以確保 docker 群組權限在所有新 shell 生效。"
 sudo newgrp docker
 
 step "測試 Docker Compose Plugin"
