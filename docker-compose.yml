@@ -63,7 +63,7 @@ services:
       # 啟用錄影功能
       RECORDING_ENABLED: "true"
       # 啟用 LDAP 認證 (需在 guacamole.properties 配置)            
-      LDAP_ENABLED: "true" 
+      LDAP_ENABLED: "false" 
       # 啟用二階段驗證 (可取消註解)                
       TOTP_ENABLED: "false"       
       # 啟用 IP 封鎖功能(需在 guacamole.properties 配置)        

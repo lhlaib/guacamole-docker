@@ -17,7 +17,7 @@ REC_MODE=${REC_MODE:-2750}
 
 # DB 初始化 SQL 檔
 INIT_SQL=${INIT_SQL:-"$ROOT_DIR/initdb.sql"}
-
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-"MariaDBUserPass"}  # 與 compose 綁定
 # guacenc 容器（如有 encoder.Dockerfile）
 ENC_IMAGE=${ENC_IMAGE:-"guac-encoder:1.6.0"}
 
@@ -120,6 +120,9 @@ case "$cmd" in
     ensure_dirs_and_perms
     dc up -d
     ok "Stack started. 用 '$0 status' 查看狀態。"
+    # 連接到 guacamole 頁面
+    bold "打開瀏覽器並前往：http://<你的伺服器IP>/"
+    bold "預設帳號密碼：guacadmin / guacadmin"
     ;;
   down)
     dc down
@@ -164,10 +167,10 @@ case "$cmd" in
     fi
 
     # 檢查 guacamole_user 表是否存在
-    if ! dc exec -T guacdb mysql -u root -p"$MYSQL_ROOT_PASSWORD" \
+    if ! dc exec -T guacdb mysql -u guacamole_user -p"$MYSQL_ROOT_PASSWORD" \
         -e "USE guacamole_db; SHOW TABLES LIKE 'guacamole_user';" | grep -q guacamole_user; then
       bold "匯入 initdb.sql ..."
-      dc exec -T guacdb bash -lc 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" guacamole_db' < "$INIT_SQL"
+      dc exec -T guacdb bash -lc 'mysql -u guacamole_user -p"$MYSQL_ROOT_PASSWORD" guacamole_db' < "$INIT_SQL"
       ok "已匯入 Guacamole schema"
     else
       note "guacamole_user 表已存在，略過匯入"
